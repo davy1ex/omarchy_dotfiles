@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# omarchy:summary=Center the focused column, like niri's Mod+C
+
+set -euo pipefail
+
+# Only the scrolling (niri-like) layout has a center concept. Other layouts
+# would raise a config error, so stay silent and do nothing there.
+layout=$(hyprctl activeworkspace -j | jq -r '.tiledLayout // ""')
+[[ "$layout" == "scrolling" ]] || exit 0
+
+hyprctl dispatch 'hl.dsp.layout("center")' >/dev/null 2>&1 || true

@@ -1,0 +1,3 @@
+# <plugin-id><TAB><git-url><TAB><enabled|disabled>
+crmne.hyprmoncfg	https://github.com/crmne/omarchy-hyprmoncfg.git	enabled
+tornikegomareli.spaces	https://github.com/tornikegomareli/omarchy-spaces.git	enabled
