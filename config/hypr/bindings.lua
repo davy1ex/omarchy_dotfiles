@@ -20,3 +20,5 @@
 -- SUPER+SPACE for the menu and SUPER+SHIFT+F for the file manager).
 o.bind("SUPER + D", "Omarchy menu", "omarchy-menu toggle")
 o.bind("SUPER + E", "File manager", { omarchy = "nautilus" })
+-- Replace Omarchy's Super+V universal-paste binding with clipboard history.
+o.rebind("SUPER + V", "Clipboard history", { panel = "omarchy.clipboard" })
