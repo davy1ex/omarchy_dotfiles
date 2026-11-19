@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "idle": {
+    "screensaver": 0,
+    "lock": 300
+  },
+  "bar": {
+    "position": "top",
+    "background": "opaque",
+    "layout": {
+      "left": [
+        {
+          "id": "omarchy.menu"
+        },
+        {
+          "id": "tornikegomareli.spaces"
+        }
+      ],
+      "centerBegin": [
+        {
+          "id": "omarchy.indicators"
+        }
+      ],
+      "center": [
+        {
+          "id": "omarchy.clock",
+          "format": "dddd HH:mm",
+          "formatAlt": "d MMMM 'W'ww yyyy",
+          "verticalFormat": "HH\n—\nmm"
+        }
+      ],
+      "centerEnd": [
+        {
+          "id": "omarchy.elsewhen",
+          "cities": [
+            {
+              "name": "Moscow",
+              "zone": "Europe/Moscow"
+            },
+            {
+              "name": "Tokyo",
+              "zone": "Asia/Tokyo"
+            },
+            {
+              "name": "Los Angeles",
+              "zone": "America/Los_Angeles"
+            },
+            {
+              "name": "New York",
+              "zone": "America/New_York"
+            },
+            {
+              "name": "London",
+              "zone": "Europe/London"
+            }
+          ]
+        },
+        {
+          "id": "omarchy.weather"
+        },
+        {
+          "id": "omarchy.system-update"
+        }
+      ],
+      "right": [
+        {
+          "id": "omarchy.tray"
+        },
+        {
+          "id": "crmne.omastats",
+          "modules": "cpu,memory",
+          "style": "both",
+          "cpuStyle": "both",
+          "memoryStyle": "both",
+          "barLabels": "icon",
+          "refreshSeconds": 1,
+          "historySeconds": 30,
+          "publicIp": false,
+          "tabs": "cpu,memory",
+          "showProcesses": false
+        },
+        {
+          "id": "crmne.hyprmoncfg"
+        },
+        {
+          "id": "io.github.davy1ex.omaniri"
+        },
+        {
+          "id": "superwhisper.panel"
+        },
+        {
+          "id": "omarchy.keyboard-layout"
+        },
+        {
+          "id": "omarchy.agents"
+        },
+        {
+          "id": "omarchy.bluetooth"
+        },
+        {
+          "id": "omarchy.network"
+        },
+        {
+          "id": "omarchy.audio"
+        },
+        {
+          "id": "omarchy.monitor"
+        },
+        {
+          "id": "omarchy.power",
+          "showPercentage": true
+        }
+      ],
+      "tray": []
+    }
+  },
+  "dock": {
+    "position": "bottom",
+    "pinned": [
+      "org.gnome.Nautilus",
+      "chromium",
+      "foot",
+      "omacalc",
+      "omawrite",
+      "X",
+      "YouTube"
+    ]
+  },
+  "plugins": []
+}

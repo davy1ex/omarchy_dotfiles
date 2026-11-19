@@ -5,20 +5,23 @@
 #   ./install.sh             install: repo -> machine
 #   ./install.sh --dry-run   show what would change, touch nothing
 #   ./install.sh --save      save: machine -> repo
+#   ./install.sh --files-only link config/bin and copy state; skip theme/plugins
 #
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DRY_RUN=0
 SAVE=0
+FILES_ONLY=0
 STAMP=$(date +%s)
 
 for arg in "$@"; do
   case "$arg" in
     -n|--dry-run) DRY_RUN=1 ;;
     -s|--save) SAVE=1 ;;
+    --files-only) FILES_ONLY=1 ;;
     -h|--help)
-      sed -n '2,7p' "$0" | sed 's/^# \{0,1\}//'
+      sed -n '2,8p' "$0" | sed 's/^# \{0,1\}//'
       exit 0
       ;;
     *) printf 'install.sh: unknown option: %s\n' "$arg" >&2; exit 2 ;;
@@ -31,6 +34,8 @@ skip() { printf '%s   %s%s\n' "$DIM" "$*" "$OFF"; }
 warn() { printf '%swarn:%s %s\n' "$YELLOW" "$OFF" "$*"; }
 die()  { printf '%serr:%s %s\n' "$RED" "$OFF" "$*" >&2; exit 1; }
 
+(( SAVE && FILES_ONLY )) && die "--files-only cannot be combined with --save"
+
 # run <command...> — echoes instead of executing under --dry-run
 run() {
   if (( DRY_RUN )); then
@@ -40,9 +45,49 @@ run() {
   fi
 }
 
+# link_tree <src-root> <dest-root> — link each file back to this checkout
+link_tree() {
+  local src_root=$1 dest_root=$2 src rel dest backup src_real dest_real
+  local total=0 linked=0
+
+  [[ -d $src_root ]] || { skip "no $src_root"; return 0; }
+
+  while IFS= read -r -d '' src; do
+    total=$(( total + 1 ))
+    rel=${src#"$src_root"/}
+    dest="$dest_root/$rel"
+    src_real=$(readlink -f -- "$src")
+
+    if [[ -L $dest ]]; then
+      dest_real=$(readlink -f -- "$dest" 2>/dev/null || true)
+      if [[ $dest_real == "$src_real" ]]; then
+        continue
+      fi
+    fi
+
+    if [[ -e $dest || -L $dest ]]; then
+      backup="$dest.bak.$STAMP"
+      [[ ! -e $backup && ! -L $backup ]] || backup="$backup.$$"
+      run mv -- "$dest" "$backup"
+      skip "backed up ${dest/#$HOME/~}"
+    fi
+
+    run mkdir -p "$(dirname "$dest")"
+    run ln -s -- "$src" "$dest"
+    log "linked ${dest/#$HOME/~} -> ${src/#$HOME/~}"
+    linked=$(( linked + 1 ))
+  done < <(find "$src_root" -type f ! -name '*.bak.*' ! -name '*.sample' -print0)
+
+  if (( linked )); then
+    skip "$linked of $total file(s) linked"
+  else
+    skip "all $total file(s) already linked"
+  fi
+}
+
 # copy_tree <src-root> <dest-root> — mirror files, backing up any that differ
 copy_tree() {
-  local src_root=$1 dest_root=$2 src rel dest
+  local src_root=$1 dest_root=$2 src rel dest backup
   local total=0 changed=0
 
   [[ -d $src_root ]] || { skip "no $src_root"; return 0; }
@@ -53,9 +98,11 @@ copy_tree() {
     dest="$dest_root/$rel"
 
     if [[ -L $dest ]]; then
-      # Copying through the link would clobber whatever it points at.
-      warn "removing symlink $dest (would write through to its target)"
-      run rm -f "$dest"
+      # Move the link itself so the copy cannot overwrite its target.
+      backup="$dest.bak.$STAMP"
+      [[ ! -e $backup && ! -L $backup ]] || backup="$backup.$$"
+      run mv -- "$dest" "$backup"
+      skip "backed up ${dest/#$HOME/~}"
     elif [[ -f $dest ]] && cmp -s "$src" "$dest"; then
       continue
     elif [[ -e $dest ]]; then
@@ -67,7 +114,7 @@ copy_tree() {
     run cp "$src" "$dest"
     log "installed ${dest/#$HOME/~}"
     changed=$(( changed + 1 ))
-  done < <(find "$src_root" -type f -print0)
+  done < <(find "$src_root" -type f ! -name '*.bak.*' ! -name '*.sample' -print0)
 
   if (( changed )); then
     skip "$changed of $total file(s) updated"
@@ -79,8 +126,8 @@ copy_tree() {
 # omarchy stores theme.name as a slug but `theme set` takes the display name.
 slug() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | tr ' ' '-'; }
 
-# save_tree <repo-root> <live-root> — copy tracked files back from the machine.
-# Iterates the repo side so new files on disk are never pulled in uninvited.
+# save_tree <repo-root> <live-root> — copy existing repo paths back from the machine.
+# Linked config/bin edits already update the repo; this also captures copied state.
 save_tree() {
   local repo_root=$1 live_root=$2 repof live rel
   local total=0 changed=0
@@ -103,7 +150,7 @@ save_tree() {
     run cp "$live" "$repof"
     log "saved $rel"
     changed=$(( changed + 1 ))
-  done < <(find "$repo_root" -type f -print0)
+  done < <(find "$repo_root" -type f ! -name '*.bak.*' ! -name '*.sample' -print0)
 
   if (( changed )); then
     skip "$changed of $total file(s) saved"
@@ -163,18 +210,16 @@ fi
 
 # ---------------------------------------------------------------- files ----
 
-log "Config files"
-copy_tree "$REPO_DIR/config" "$HOME/.config"
+log "Config links"
+link_tree "$REPO_DIR/config" "$HOME/.config"
 
-log "Executables"
-copy_tree "$REPO_DIR/bin" "$HOME/.local/bin"
-while IFS= read -r -d '' f; do
-  run chmod +x "$f"
-done < <(find "$REPO_DIR/bin" -type f -print0 2>/dev/null)
+log "Executable links"
+link_tree "$REPO_DIR/bin" "$HOME/.local/bin"
 
 log "Session state"
 copy_tree "$REPO_DIR/state" "$HOME/.local/state"
 
+if (( ! FILES_ONLY )); then
 # ---------------------------------------------------------------- theme ----
 
 if [[ -f $REPO_DIR/theme.txt ]]; then
@@ -220,6 +265,8 @@ if [[ -f $REPO_DIR/plugins.txt ]]; then
     fi
   done < "$REPO_DIR/plugins.txt"
 fi
+
+fi # ! FILES_ONLY
 
 # ------------------------------------------------------------- validate ----
 

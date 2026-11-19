@@ -20,10 +20,10 @@ hl.config({
     numlock_by_default = true,
 
     -- Increase sensitivity for mouse/trackpad (default: 0).
-    sensitivity = 0.35,
+    sensitivity = 0.45,
 
-    -- Turn off mouse acceleration (default: adaptive).
-    accel_profile = "flat",
+    -- Use adaptive acceleration for a more responsive pointer.
+    accel_profile = "adaptive",
 
     touchpad = {
       -- Use natural (inverse) scrolling.
@@ -55,3 +55,13 @@ hl.config({
 -- Enable touchpad gestures for moving focus (helpful on scrolling layout).
 -- hl.gesture({ fingers = 3, direction = "left", action = function() hl.dispatch(hl.dsp.focus({ direction = "l" })) end })
 -- hl.gesture({ fingers = 3, direction = "right", action = function() hl.dispatch(hl.dsp.focus({ direction = "r" })) end })
+
+-- Hold Ctrl+Alt and pinch with two fingers to zoom the screen around the cursor.
+hl.gesture({
+  fingers = 2,
+  direction = "pinch",
+  mods = "CTRL ALT",
+  action = "cursor_zoom",
+  zoom_level = 1,
+  mode = "live",
+})
