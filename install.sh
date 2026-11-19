@@ -5,7 +5,7 @@
 #   ./install.sh             install: repo -> machine
 #   ./install.sh --dry-run   show what would change, touch nothing
 #   ./install.sh --save      save: machine -> repo
-#   ./install.sh --files-only link config/bin and copy state; skip theme/plugins
+#   ./install.sh --files-only link config/bin and copy state; skip theme/plugins/app setup
 #
 set -euo pipefail
 
@@ -267,6 +267,11 @@ if [[ -f $REPO_DIR/plugins.txt ]]; then
 fi
 
 fi # ! FILES_ONLY
+
+if (( ! FILES_ONLY )) && [[ -f $REPO_DIR/superwhisper.env ]]; then
+  log "Superwhisper settings"
+  run bash "$REPO_DIR/scripts/configure-superwhisper.sh"
+fi
 
 # ------------------------------------------------------------- validate ----
 

@@ -2,3 +2,4 @@
 crmne.hyprmoncfg	https://github.com/crmne/omarchy-hyprmoncfg.git	enabled
 tornikegomareli.spaces	https://github.com/tornikegomareli/omarchy-spaces.git	enabled
 crmne.omastats	https://github.com/crmne/omastats.git	enabled
+io.github.davy1ex.omaniri	https://github.com/davy1ex/omaniri.git	enabled
