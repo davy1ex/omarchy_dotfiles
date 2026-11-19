@@ -5,7 +5,7 @@
 #   ./install.sh             install: repo -> machine
 #   ./install.sh --dry-run   show what would change, touch nothing
 #   ./install.sh --save      save: machine -> repo
-#   ./install.sh --files-only link config/bin and copy state; skip theme/plugins/app setup
+#   ./install.sh --files-only link config/bin and copy state; skip package/theme/plugin/app setup
 #
 set -euo pipefail
 
@@ -220,6 +220,20 @@ log "Session state"
 copy_tree "$REPO_DIR/state" "$HOME/.local/state"
 
 if (( ! FILES_ONLY )); then
+# ------------------------------------------------------------ packages ----
+
+if [[ -f $REPO_DIR/packages.txt ]]; then
+  if command -v omarchy >/dev/null; then
+    log "Packages"
+    while IFS= read -r package || [[ -n ${package:-} ]]; do
+      [[ -z ${package:-} || $package == \#* ]] && continue
+      run omarchy pkg add "$package"
+    done < "$REPO_DIR/packages.txt"
+  else
+    warn "omarchy not found; skipping packages"
+  fi
+fi
+
 # ---------------------------------------------------------------- theme ----
 
 if [[ -f $REPO_DIR/theme.txt ]]; then

@@ -13,25 +13,33 @@ config/omarchy/       bar layout (shell.json), font size (shell.toml)
 bin/                  helper scripts on PATH
 state/                workspace layout rules (scrolling on workspaces 1-9)
 scripts/              helpers called by install.sh
+packages.txt          Omarchy repository packages installed by install.sh
 plugins.txt           third-party bar widgets + their git URLs
 superwhisper.env      selected dictation language and local processing mode
 theme.txt             theme display name
 ```
 
-## New machine
+## Quick start: fresh Omarchy install
+
+Finish Omarchy's first-run setup, connect to the internet, and log into the
+desktop. Then open a terminal and run:
 
 ```sh
-git clone <this-repo> ~/dotfiles
-cd ~/dotfiles && ./install.sh
+git clone https://github.com/davy1ex/omarchy_dotfiles.git ~/omarchy_dotfiles
+cd ~/omarchy_dotfiles
+./install.sh --dry-run   # optional: preview the changes
+./install.sh
 ```
 
-`install.sh` links `config/` and `bin/` files to their destinations, copies the
-mutable `state/` files, and backs up anything it replaces. It also sets the
-theme, installs and enables the plugins, applies the Superwhisper language and
-local processing mode when Superwhisper is installed, then reloads Hyprland and
-fails if `hyprctl configerrors` reports anything. Missing Offline Lite models
-are downloaded by Superwhisper; this can use about 823 MB. Use `--files-only` to
-apply the files without changing the theme, plugin state, or app settings.
+`install.sh` links `config/` and `bin/`, copies workspace state, and backs up
+any existing files it replaces. It installs packages from
+`packages.txt`, sets the theme, installs and enables plugins, configures
+Superwhisper when present, and reloads Hyprland. If Superwhisper's Offline Lite
+models are missing, it starts their download (about 823 MB). Review the output
+for any skipped steps or errors.
+
+Use `./install.sh --files-only` to apply files and workspace state without
+installing packages, changing the theme or plugins, or configuring Superwhisper.
 
 Preview first with `./install.sh --dry-run`.
 
@@ -69,6 +77,8 @@ unrelated files from `~/.config`.
 - **Keyboard layouts:** `config/omarchy/keyboard-layouts` keeps Omarchy's keyboard
   selector aligned with the RU/EN layout in `config/hypr/input.lua`, where CapsLock
   toggles between layouts.
+- **File manager:** `SUPER + SHIFT + E` opens Flea; `packages.txt` makes sure the
+  Omarchy package is installed on a new setup.
 - **Superwhisper:** `superwhisper.env` selects Russian and Offline Lite. The installer
   uses Superwhisper's CLI to apply those choices and prepares missing local models;
   it does not copy private preferences, credentials, or dictation history.

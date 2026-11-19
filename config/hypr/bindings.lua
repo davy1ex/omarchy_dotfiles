@@ -17,9 +17,10 @@
 -- Add personal, non-niri overrides below.
 
 -- Alternative launcher/file-manager bindings (in addition to stock
--- SUPER+SPACE for the menu and SUPER+SHIFT+F for the file manager).
+-- SUPER+SPACE for the menu and SUPER+SHIFT+F for the stock file manager).
 o.bind("SUPER + D", "Omarchy menu", "omarchy-menu toggle")
 o.bind("SUPER + E", "File manager", { omarchy = "nautilus" })
+o.rebind("SUPER + SHIFT + E", "Flea file manager", { launch = "flea" })
 -- Replace Omarchy's Super+V universal-paste binding with clipboard history.
 o.rebind("SUPER + V", "Clipboard history", { panel = "omarchy.clipboard" })
 

@@ -1,0 +1,2 @@
+# Omarchy repository packages installed by install.sh
+flea
